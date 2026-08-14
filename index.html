@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101a2d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Scout Individual Beta 4</title>
+<title>Scout Individual Beta 5</title>
 <style>
 :root{--bg:#0b1424;--panel:#111d31;--border:#2b3a52;--txt:#fff;--green:#16a34a;--red:#e5252a;--blue:#2f69e8;--orange:#df7900;--purple:#7d37ed;--cyan:#078ba8;--yellow:#b88700;--gray:#34445b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -54,6 +54,8 @@ button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;fo
   </div>
   <div id="timer" class="timer">00:00</div>
   <div class="controls">
+   <button class="green" onclick="start()">▶ INICIAR</button>
+   <button class="gray" onclick="pause()">Ⅱ PAUSAR</button>
    <button class="gray" onclick="jump(-30)">−30s</button>
    <button class="gray" onclick="jump(-10)">−10s</button>
    <button class="blue" onclick="editTime()">✎ EDITAR TEMPO</button>
@@ -139,13 +141,15 @@ button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;fo
 </div>
 
 <script>
-let sec=+(localStorage.si3_sec||0),half=+(localStorage.si3_half||1);
+let sec=+(localStorage.si3_sec||0),half=+(localStorage.si3_half||1),run=false,intv=null;
 let data=JSON.parse(localStorage.si3_data||'[]'),passRes=null,tags=new Set();
 const $=id=>document.getElementById(id);
 
 function fm(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function drawTime(){$('timer').textContent=(half===2?'2T ':'')+fm(sec)}
 function persistTime(){localStorage.si3_sec=sec;localStorage.si3_half=half;drawTime()}
+function start(){if(run)return;run=true;intv=setInterval(()=>{sec++;persistTime()},1000)}
+function pause(){run=false;clearInterval(intv)}
 function jump(n){sec=Math.max(0,sec+n);persistTime()}
 function editTime(){
  let atual=fm(sec);
