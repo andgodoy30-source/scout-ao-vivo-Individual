@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101a2d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Scout Individual</title>
+<title>Scout Individual Beta 4</title>
 <style>
 :root{--bg:#0b1424;--panel:#111d31;--border:#2b3a52;--txt:#fff;--green:#16a34a;--red:#e5252a;--blue:#2f69e8;--orange:#df7900;--purple:#7d37ed;--cyan:#078ba8;--yellow:#b88700;--gray:#34445b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -17,7 +17,7 @@ body{margin:0;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,
 .fields{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px}
 input,select{width:100%;background:#0a1323;color:#fff;border:1px solid #40506a;border-radius:11px;padding:11px;font-size:16px}
 .timer{font-size:36px;text-align:center;background:#08101e;border-radius:12px;padding:8px;margin:10px 0}
-.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;font-size:16px;padding:8px;touch-action:manipulation}
 .green{background:var(--green)}.red{background:var(--red)}.blue{background:var(--blue)}.orange{background:var(--orange)}.purple{background:var(--purple)}.cyan{background:var(--cyan)}.yellow{background:var(--yellow)}.gray{background:var(--gray)}
 .categories{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -54,10 +54,12 @@ button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;fo
   </div>
   <div id="timer" class="timer">00:00</div>
   <div class="controls">
-   <button class="green" onclick="start()">▶ INICIAR</button>
-   <button class="gray" onclick="pause()">Ⅱ PAUSAR</button>
-   <button class="blue" onclick="secondHalf()">2º TEMPO</button>
-   <button class="gray" onclick="zero()">↻ ZERAR</button>
+   <button class="gray" onclick="jump(-30)">−30s</button>
+   <button class="gray" onclick="jump(-10)">−10s</button>
+   <button class="blue" onclick="editTime()">✎ EDITAR TEMPO</button>
+   <button class="gray" onclick="jump(10)">+10s</button>
+   <button class="gray" onclick="jump(30)">+30s</button>
+   <button class="purple" onclick="secondHalf()">2º TEMPO</button>
   </div>
  </div>
 
@@ -137,16 +139,25 @@ button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;fo
 </div>
 
 <script>
-let sec=+(localStorage.si3_sec||0),run=false,intv=null,half=+(localStorage.si3_half||1);
+let sec=+(localStorage.si3_sec||0),half=+(localStorage.si3_half||1);
 let data=JSON.parse(localStorage.si3_data||'[]'),passRes=null,tags=new Set();
 const $=id=>document.getElementById(id);
 
 function fm(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function drawTime(){$('timer').textContent=(half===2?'2T ':'')+fm(sec)}
-function start(){if(run)return;run=true;intv=setInterval(()=>{sec++;localStorage.si3_sec=sec;drawTime()},1000)}
-function pause(){run=false;clearInterval(intv)}
-function zero(){pause();sec=0;half=1;localStorage.si3_sec=0;localStorage.si3_half=1;drawTime()}
-function secondHalf(){pause();half=2;sec=0;localStorage.si3_sec=0;localStorage.si3_half=2;drawTime()}
+function persistTime(){localStorage.si3_sec=sec;localStorage.si3_half=half;drawTime()}
+function jump(n){sec=Math.max(0,sec+n);persistTime()}
+function editTime(){
+ let atual=fm(sec);
+ let v=prompt('Digite o tempo do vídeo (MM:SS ou HH:MM:SS):',atual);
+ if(v===null)return;
+ let a=v.trim().split(':').map(Number);
+ if(a.some(Number.isNaN) || a.length<2 || a.length>3){alert('Use MM:SS ou HH:MM:SS.');return}
+ let total=a.length===2 ? a[0]*60+a[1] : a[0]*3600+a[1]*60+a[2];
+ if(total<0){return}
+ sec=Math.floor(total);persistTime()
+}
+function secondHalf(){half=2;sec=0;persistTime()}
 
 function openCat(id){
  document.querySelectorAll('.subpanel').forEach(p=>p.classList.toggle('open',p.id===id && !p.classList.contains('open')));
@@ -167,7 +178,7 @@ function commitPass(){
 }
 function save(){localStorage.si3_data=JSON.stringify(data);render()}
 function undo(){data.pop();save()}
-function clearGame(){if(confirm('Apagar todos os registros deste jogo?')){data=[];localStorage.si3_data='[]';zero();render()}}
+function clearGame(){if(confirm('Apagar todos os registros deste jogo?')){data=[];localStorage.si3_data='[]';sec=0;half=1;persistTime();render()}}
 
 function render(){
  let rev=[...data].reverse().slice(0,12);
