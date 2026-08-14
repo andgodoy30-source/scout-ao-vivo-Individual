@@ -11,35 +11,42 @@
 :root{--bg:#0b1424;--panel:#111d31;--border:#2b3a52;--txt:#fff;--green:#16a34a;--red:#e5252a;--blue:#2f69e8;--orange:#df7900;--purple:#7d37ed;--cyan:#078ba8;--yellow:#b88700;--gray:#34445b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif;font-weight:700}
-.app{max-width:980px;margin:auto;padding:12px 12px 95px}
+.app{max-width:900px;margin:auto;padding:12px 12px 92px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:12px}
 .title{text-align:center;font-size:21px;margin:2px 0 10px}
 .fields{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px}
 input,select{width:100%;background:#0a1323;color:#fff;border:1px solid #40506a;border-radius:11px;padding:11px;font-size:16px}
 .timer{font-size:36px;text-align:center;background:#08101e;border-radius:12px;padding:8px;margin:10px 0}
-.controls,.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.grid{grid-template-columns:1fr 1fr}
-button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:66px;font-size:16px;padding:8px;touch-action:manipulation}
-.controls button{min-height:58px}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+button{border:0;color:#fff;font-weight:800;border-radius:12px;min-height:62px;font-size:16px;padding:8px;touch-action:manipulation}
 .green{background:var(--green)}.red{background:var(--red)}.blue{background:var(--blue)}.orange{background:var(--orange)}.purple{background:var(--purple)}.cyan{background:var(--cyan)}.yellow{background:var(--yellow)}.gray{background:var(--gray)}
-h2{font-size:14px;color:#cbd5e1;margin:4px 0 9px;text-transform:uppercase;letter-spacing:.6px}
-.tag.active{outline:4px solid #fff;filter:brightness(1.15)}
-.pass-result.active{outline:4px solid #fff}
-.passnote{font-size:12px;color:#aebbd0;margin:8px 2px 0;text-align:center}
+.categories{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cat{min-height:82px;font-size:18px}
+.subpanel{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #33445e}
+.subpanel.open{display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tag.active,.pass-result.active{outline:4px solid #fff;filter:brightness(1.12)}
+.note{font-size:12px;color:#aebbd0;margin:8px 2px 0;text-align:center}
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .stat{background:#0a1323;border-radius:10px;padding:9px;text-align:center;font-size:12px}
 .stat b{display:block;font-size:21px}
-.log{max-height:170px;overflow:auto;background:#08101e;border-radius:10px;padding:6px;font-size:12px}
+.log{max-height:150px;overflow:auto;background:#08101e;border-radius:10px;padding:6px;font-size:12px}
 .row{padding:6px;border-bottom:1px solid #24334b}
 .bottom{position:fixed;left:0;right:0;bottom:0;background:#0d1728;border-top:1px solid #33445e;padding:8px;display:flex;justify-content:center;gap:8px}
 .bottom button{min-height:50px;padding:8px 14px}
-@media(max-width:700px){.fields{grid-template-columns:1fr 1fr}.fields input:first-child{grid-column:1/-1}.controls{grid-template-columns:1fr 1fr}.summary{grid-template-columns:1fr 1fr}button{min-height:70px}}
+@media(max-width:700px){
+ .fields{grid-template-columns:1fr 1fr}.fields input:first-child{grid-column:1/-1}
+ .controls{grid-template-columns:1fr 1fr}
+ .categories{grid-template-columns:1fr 1fr}
+ .summary{grid-template-columns:1fr 1fr}
+ .cat{min-height:86px}
+}
 </style>
 </head>
 <body>
 <div class="app">
  <div class="panel">
-  <div class="title">SCOUT INDIVIDUAL — ZAGUEIRO / VOLANTE</div>
+  <div class="title">SCOUT INDIVIDUAL</div>
   <div class="fields">
    <input id="athlete" value="Zago" placeholder="Atleta">
    <input id="opponent" placeholder="Adversário">
@@ -55,106 +62,133 @@ h2{font-size:14px;color:#cbd5e1;margin:4px 0 9px;text-transform:uppercase;letter
  </div>
 
  <div class="panel">
-  <h2>Passe</h2>
-  <div class="grid">
-   <button id="pc" class="green pass-result" onclick="choosePass('Certo',this)">● PASSE CERTO</button>
-   <button id="pe" class="red pass-result" onclick="choosePass('Errado',this)">● PASSE ERRADO</button>
-   <button class="blue tag" data-tag="Progressivo" onclick="tag(this)">↑ PROGRESSIVO</button>
-   <button class="purple tag" data-tag="Quebra de Linha" onclick="tag(this)">↗ QUEBRA DE LINHA</button>
-   <button class="cyan tag" data-tag="Longo" onclick="tag(this)">➜ PASSE LONGO</button>
-   <button class="orange" onclick="commitPass()">✓ REGISTRAR PASSE</button>
+  <div class="categories">
+   <button class="blue cat" onclick="openCat('passe')">⚽ PASSE</button>
+   <button class="orange cat" onclick="openCat('defesa')">🛡 DEFESA</button>
+   <button class="purple cat" onclick="openCat('duelos')">⚔ DUELOS</button>
+   <button class="green cat" onclick="openCat('posse')">↕ POSSE / PROGRESSÃO</button>
+   <button class="cyan cat" style="grid-column:1/-1" onclick="openCat('momentos')">★ MOMENTOS PARA VÍDEO</button>
   </div>
-  <div class="passnote">Escolha Certo/Errado + características do passe. O sistema registra tudo como apenas 1 passe.</div>
+
+  <div id="passe" class="subpanel">
+   <div class="grid">
+    <button id="pc" class="green pass-result" onclick="choosePass('Certo',this)">PASSE CERTO</button>
+    <button id="pe" class="red pass-result" onclick="choosePass('Errado',this)">PASSE ERRADO</button>
+    <button class="blue tag" data-tag="Progressivo" onclick="tag(this)">PROGRESSIVO</button>
+    <button class="purple tag" data-tag="Quebra de Linha" onclick="tag(this)">QUEBRA DE LINHA</button>
+    <button class="cyan tag" data-tag="Longo" onclick="tag(this)">PASSE LONGO</button>
+    <button class="orange" onclick="commitPass()">REGISTRAR PASSE</button>
+   </div>
+   <div class="note">Certo/Errado + características contam como apenas 1 passe.</div>
+  </div>
+
+  <div id="defesa" class="subpanel">
+   <div class="grid">
+    <button class="orange" onclick="ev('Desarme')">DESARME</button>
+    <button class="blue" onclick="ev('Interceptação')">INTERCEPTAÇÃO</button>
+    <button class="yellow" onclick="ev('Corte')">CORTE</button>
+    <button class="purple" onclick="ev('Bloqueio')">BLOQUEIO</button>
+   </div>
+  </div>
+
+  <div id="duelos" class="subpanel">
+   <div class="grid">
+    <button class="green" onclick="ev('Duelo terrestre ganho')">TERRESTRE GANHO</button>
+    <button class="red" onclick="ev('Duelo terrestre perdido')">TERRESTRE PERDIDO</button>
+    <button class="blue" onclick="ev('Duelo aéreo ganho')">AÉREO GANHO</button>
+    <button class="orange" onclick="ev('Duelo aéreo perdido')">AÉREO PERDIDO</button>
+   </div>
+  </div>
+
+  <div id="posse" class="subpanel">
+   <div class="grid">
+    <button class="green" onclick="ev('Recuperação')">RECUPERAÇÃO</button>
+    <button class="red" onclick="ev('Perda')">PERDA</button>
+    <button class="blue" onclick="ev('Condução progressiva')">CONDUÇÃO PROGRESSIVA</button>
+    <button class="cyan" onclick="ev('Pressão / ação sem bola')">PRESSÃO / SEM BOLA</button>
+   </div>
+  </div>
+
+  <div id="momentos" class="subpanel">
+   <div class="grid">
+    <button class="green" onclick="moment('Momento positivo')">★ POSITIVO</button>
+    <button class="orange" onclick="moment('Momento atenção')">! ATENÇÃO</button>
+   </div>
+   <div class="note">Salva também a referência 15 segundos antes do clique.</div>
+  </div>
  </div>
 
  <div class="panel">
-  <h2>Ações defensivas</h2>
-  <div class="grid">
-   <button class="orange" onclick="ev('Desarme')">◆ DESARME</button>
-   <button class="blue" onclick="ev('Interceptação')">◆ INTERCEPTAÇÃO</button>
-   <button class="yellow" onclick="ev('Corte')">◆ CORTE</button>
-   <button class="purple" onclick="ev('Bloqueio')">◆ BLOQUEIO</button>
-  </div>
- </div>
-
- <div class="panel">
-  <h2>Duelos</h2>
-  <div class="grid">
-   <button class="green" onclick="ev('Duelo terrestre ganho')">↑ TERRESTRE GANHO</button>
-   <button class="red" onclick="ev('Duelo terrestre perdido')">↓ TERRESTRE PERDIDO</button>
-   <button class="blue" onclick="ev('Duelo aéreo ganho')">↑ AÉREO GANHO</button>
-   <button class="orange" onclick="ev('Duelo aéreo perdido')">↓ AÉREO PERDIDO</button>
-  </div>
- </div>
-
- <div class="panel">
-  <h2>Posse / Progressão</h2>
-  <div class="grid">
-   <button class="green" onclick="ev('Recuperação')">● RECUPERAÇÃO</button>
-   <button class="red" onclick="ev('Perda')">● PERDA</button>
-   <button class="blue" onclick="ev('Condução progressiva')">↑ CONDUÇÃO PROGRESSIVA</button>
-   <button class="cyan" onclick="ev('Pressão / ação sem bola')">◆ PRESSÃO / SEM BOLA</button>
-  </div>
- </div>
-
- <div class="panel">
-  <h2>Momentos para vídeo</h2>
-  <div class="grid">
-   <button class="green" onclick="moment('Momento positivo')">★ MOMENTO POSITIVO</button>
-   <button class="orange" onclick="moment('Momento atenção')">! MOMENTO ATENÇÃO</button>
-  </div>
-  <div class="passnote">Registra também a referência do vídeo 15 segundos antes do clique.</div>
- </div>
-
- <div class="panel">
-  <h2>Resumo</h2>
   <div class="summary">
-   <div class="stat"><b id="sPass">0/0</b>Passes certos</div>
+   <div class="stat"><b id="sPass">0/0</b>Passes</div>
    <div class="stat"><b id="sProg">0</b>Progressivos</div>
-   <div class="stat"><b id="sDef">0</b>Ações defensivas</div>
-   <div class="stat"><b id="sDuel">0/0</b>Duelos ganhos</div>
+   <div class="stat"><b id="sDef">0</b>Defensivas</div>
+   <div class="stat"><b id="sDuel">0/0</b>Duelos</div>
   </div>
  </div>
 
- <div class="panel"><h2>Últimos registros</h2><div id="log" class="log"></div></div>
+ <div class="panel"><div id="log" class="log"></div></div>
 </div>
 
 <div class="bottom">
  <button class="gray" onclick="undo()">↶ DESFAZER</button>
  <button class="cyan" onclick="csv()">EXPORTAR CSV</button>
- <button class="red" onclick="clearGame()">LIMPAR JOGO</button>
+ <button class="red" onclick="clearGame()">LIMPAR</button>
 </div>
 
 <script>
-let sec=+(localStorage.si_sec||0),run=false,intv=null,half=+(localStorage.si_half||1);
-let data=JSON.parse(localStorage.si_data||'[]'),passRes=null,tags=new Set();
+let sec=+(localStorage.si3_sec||0),run=false,intv=null,half=+(localStorage.si3_half||1);
+let data=JSON.parse(localStorage.si3_data||'[]'),passRes=null,tags=new Set();
 const $=id=>document.getElementById(id);
+
 function fm(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function drawTime(){$('timer').textContent=(half===2?'2T ':'')+fm(sec)}
-function start(){if(run)return;run=true;intv=setInterval(()=>{sec++;localStorage.si_sec=sec;drawTime()},1000)}
+function start(){if(run)return;run=true;intv=setInterval(()=>{sec++;localStorage.si3_sec=sec;drawTime()},1000)}
 function pause(){run=false;clearInterval(intv)}
-function zero(){pause();sec=0;half=1;localStorage.si_sec=0;localStorage.si_half=1;drawTime()}
-function secondHalf(){pause();half=2;sec=0;localStorage.si_sec=0;localStorage.si_half=2;drawTime()}
+function zero(){pause();sec=0;half=1;localStorage.si3_sec=0;localStorage.si3_half=1;drawTime()}
+function secondHalf(){pause();half=2;sec=0;localStorage.si3_sec=0;localStorage.si3_half=2;drawTime()}
+
+function openCat(id){
+ document.querySelectorAll('.subpanel').forEach(p=>p.classList.toggle('open',p.id===id && !p.classList.contains('open')));
+}
+
 function meta(){return {atleta:$('athlete').value,adversario:$('opponent').value,posicao:$('position').value,periodo:half}}
 function add(tipo,detalhe='',ref=''){data.push({...meta(),tempo:fm(sec),segundos:sec,referencia_video:ref,tipo,detalhe});save()}
 function ev(x){add(x)}
 function moment(x){add(x,'',fm(Math.max(0,sec-15)))}
+
 function choosePass(x,el){passRes=x;document.querySelectorAll('.pass-result').forEach(b=>b.classList.remove('active'));el.classList.add('active')}
 function tag(el){let x=el.dataset.tag;if(tags.has(x)){tags.delete(x);el.classList.remove('active')}else{tags.add(x);el.classList.add('active')}}
-function commitPass(){if(!passRes){alert('Selecione PASSE CERTO ou PASSE ERRADO.');return}add('Passe',[passRes,...tags].join(' | '));passRes=null;tags.clear();document.querySelectorAll('.pass-result,.tag').forEach(b=>b.classList.remove('active'))}
-function save(){localStorage.si_data=JSON.stringify(data);render()}
+function commitPass(){
+ if(!passRes){alert('Selecione PASSE CERTO ou PASSE ERRADO.');return}
+ add('Passe',[passRes,...tags].join(' | '));
+ passRes=null;tags.clear();
+ document.querySelectorAll('.pass-result,.tag').forEach(b=>b.classList.remove('active'))
+}
+function save(){localStorage.si3_data=JSON.stringify(data);render()}
 function undo(){data.pop();save()}
-function clearGame(){if(confirm('Apagar todos os registros deste jogo?')){data=[];localStorage.si_data='[]';zero();render()}}
+function clearGame(){if(confirm('Apagar todos os registros deste jogo?')){data=[];localStorage.si3_data='[]';zero();render()}}
+
 function render(){
- let rev=[...data].reverse().slice(0,18);$('log').innerHTML=rev.map(e=>`<div class=row><b>${e.periodo}T ${e.tempo}</b> — ${e.tipo}${e.detalhe?' — '+e.detalhe:''}${e.referencia_video?' (ref. '+e.referencia_video+')':''}</div>`).join('');
+ let rev=[...data].reverse().slice(0,12);
+ $('log').innerHTML=rev.map(e=>`<div class=row><b>${e.periodo}T ${e.tempo}</b> — ${e.tipo}${e.detalhe?' — '+e.detalhe:''}${e.referencia_video?' (ref. '+e.referencia_video+')':''}</div>`).join('');
  let p=data.filter(e=>e.tipo==='Passe'),ok=p.filter(e=>e.detalhe.includes('Certo')).length;
- $('sPass').textContent=ok+'/'+p.length;$('sProg').textContent=p.filter(e=>e.detalhe.includes('Progressivo')).length;
+ $('sPass').textContent=ok+'/'+p.length;
+ $('sProg').textContent=p.filter(e=>e.detalhe.includes('Progressivo')).length;
  let defs=['Desarme','Interceptação','Corte','Bloqueio'];$('sDef').textContent=data.filter(e=>defs.includes(e.tipo)).length;
  let d=data.filter(e=>e.tipo.startsWith('Duelo'));$('sDuel').textContent=d.filter(e=>e.tipo.includes('ganho')).length+'/'+d.length
 }
+
 function esc(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replaceAll('"','""')+'"':v}
-function csv(){let cols=['atleta','adversario','posicao','periodo','tempo','referencia_video','tipo','detalhe'];let rows=[cols.join(','),...data.map(e=>cols.map(c=>esc(e[c])).join(','))];let b=new Blob(["\ufeff"+rows.join("\n")],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='scout_individual_'+($('athlete').value||'atleta')+'.csv';a.click()}
-['athlete','opponent','position'].forEach(id=>{let el=$(id),k='si_'+id;if(localStorage[k])el.value=localStorage[k];el.onchange=()=>localStorage[k]=el.value})
-drawTime();render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
+function csv(){
+ let cols=['atleta','adversario','posicao','periodo','tempo','referencia_video','tipo','detalhe'];
+ let rows=[cols.join(','),...data.map(e=>cols.map(c=>esc(e[c])).join(','))];
+ let b=new Blob(["\ufeff"+rows.join("\n")],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='scout_individual_'+($('athlete').value||'atleta')+'.csv';a.click()
+}
+['athlete','opponent','position'].forEach(id=>{let el=$(id),k='si3_'+id;if(localStorage[k])el.value=localStorage[k];el.onchange=()=>localStorage[k]=el.value});
+drawTime();render();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
-</body></html>
+</body>
+</html>
